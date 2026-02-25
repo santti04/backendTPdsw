@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { ORM } from '../shared/db/orm.js';
 import { Calificacion } from '../Calificacion/calificacion.entity.js';
+import { Veterinario } from './veterinario.entity.js';
 import {
   sanitizeVeterinarioInput,
   findAll,
@@ -15,6 +16,16 @@ import {
 const em = ORM.em;
 
 export const veterinarioRouter = Router();
+
+veterinarioRouter.get('/check-matricula/:matricula', async (req, res) => {
+  try {
+    const matricula = Number(req.params.matricula);
+    const existing = await em.findOne(Veterinario, { matricula });
+    res.status(200).json({ disponible: !existing });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 veterinarioRouter.get('/', findAll);
 veterinarioRouter.get('/:id', findOne);
@@ -38,7 +49,7 @@ veterinarioRouter.get('/:id/calificaciones', async (req, res) => {
     const promedio =
       calificaciones.length > 0
         ? calificaciones.reduce((sum, c) => sum + c.puntuacion, 0) /
-          calificaciones.length
+        calificaciones.length
         : null;
 
     res.status(200).json({ calificaciones, promedio });
