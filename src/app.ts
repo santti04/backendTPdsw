@@ -4,6 +4,7 @@ import { usuarioRouter } from './Usuario/usuario.routes.js';
 import { mascotaRouter } from './Mascota/mascota.routes.js';
 import { veterinarioRouter } from './Veterinario/veterinario.routes.js';
 import { ORM, syncSchema } from './shared/db/orm.js';
+import { seedDatabase } from './shared/db/seed.js';
 import { RequestContext } from '@mikro-orm/core';
 import { especieRouter } from './Especie/especie.routes.js';
 import cors from 'cors';
@@ -21,7 +22,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: ['http://localhost:5173',
-    'https://vetify.netlify.app'],
+      'https://vetify.netlify.app'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Headers permitidos
   })
@@ -48,6 +49,9 @@ app.use((_, res) => {
 if (process.env.NODE_ENV !== 'production') {
   await syncSchema();
 }
+
+// Sembrar Especies y Razas
+await seedDatabase();
 
 const PORT = process.env.PORT || 3000;
 

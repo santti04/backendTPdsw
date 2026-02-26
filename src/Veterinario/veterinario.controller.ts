@@ -153,30 +153,30 @@ async function add(req: Request, res: Response) {
     });
 
     req.body.sanitizedInput.horarios.forEach(
-  (horarioData: { horaInicio: string; horaFin: string; diaSemana: number }) => {
-    // Convertir strings a Date para manipular horas
-    const inicio = new Date(`1970-01-01T${horarioData.horaInicio}`);
-    const fin = new Date(`1970-01-01T${horarioData.horaFin}`);
+      (horarioData: { horaInicio: string; horaFin: string; diaSemana: number }) => {
+        // Convertir strings a Date para manipular horas
+        const inicio = new Date(`1970-01-01T${horarioData.horaInicio}`);
+        const fin = new Date(`1970-01-01T${horarioData.horaFin}`);
 
-    let actual = new Date(inicio);
-    while (actual < fin) {
-      const siguiente = new Date(actual);
-      siguiente.setHours(siguiente.getHours() + 1);
+        let actual = new Date(inicio);
+        while (actual < fin) {
+          const siguiente = new Date(actual);
+          siguiente.setHours(siguiente.getHours() + 1);
 
-      if (siguiente > fin) break;
+          if (siguiente > fin) break;
 
-      const slot = em.create(Horario, {
-        horaInicio: actual.toTimeString().slice(0, 8),
-        horaFin: siguiente.toTimeString().slice(0, 8),
-        diaSemana: horarioData.diaSemana,
-        veterinario,
-      });
-      veterinario.horarios.add(slot);
+          const slot = em.create(Horario, {
+            horaInicio: actual.toTimeString().slice(0, 8),
+            horaFin: siguiente.toTimeString().slice(0, 8),
+            diaSemana: horarioData.diaSemana,
+            veterinario,
+          });
+          veterinario.horarios.add(slot);
 
-      actual = siguiente;
-    }
-  }
-);
+          actual = siguiente;
+        }
+      }
+    );
 
     if (req.body.sanitizedInput.especies) {
       req.body.sanitizedInput.especies.forEach((especieId: number) => {
@@ -230,7 +230,7 @@ async function actualizarPromedio(veterinarioId: number) {
   });
   const promedio = calificaciones.length
     ? calificaciones.reduce((sum, c) => sum + c.puntuacion, 0) /
-      calificaciones.length
+    calificaciones.length
     : null;
 
   const veterinario = await em.findOne(Veterinario, { id: veterinarioId });
@@ -248,8 +248,8 @@ async function horariosDisponibles(req: Request, res: Response) {
     return res.status(400).json({ message: 'Debe enviar la fecha' });
   }
   const fecha = new Date(fechaStr);
-const diaSemana = fecha.getUTCDay(); // <-- Cambia getDay() por getUTCDay()
-console.log('Fecha recibida:', fechaStr, '| Fecha interpretada:', fecha, '| Día de semana (UTC):', diaSemana);
+  const diaSemana = fecha.getUTCDay(); // <-- Cambia getDay() por getUTCDay()
+  console.log('Fecha recibida:', fechaStr, '| Fecha interpretada:', fecha, '| Día de semana (UTC):', diaSemana);
 
   // 1. Traer los horarios recurrentes para ese día de la semana
   const horarios = await em.find(Horario, {
@@ -260,10 +260,10 @@ console.log('Fecha recibida:', fechaStr, '| Fecha interpretada:', fecha, '| Día
 
   // 2. Traer los turnos ya agendados para ese veterinario y esa fecha
   const fechaUTC = new Date(fechaStr + 'T00:00:00.000Z');
-const turnos = await em.find(Turno, {
-  veterinario: veterinarioId,
-  fecha: fechaUTC,
-});
+  const turnos = await em.find(Turno, {
+    veterinario: veterinarioId,
+    fecha: fechaUTC,
+  });
   console.log('Turnos ya agendados:', turnos);
 
   // 3. Filtrar los horarios que ya tienen turno para esa fecha
