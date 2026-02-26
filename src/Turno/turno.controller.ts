@@ -82,53 +82,53 @@ async function findAll(req: Request, res: Response) {
       }
 
       return {
-  id: turno.id,
-  estado: turno.estado,
-  observaciones: turno.observaciones,
-  fechaHora,
-  rango: turno.horario
-    ? {
-        inicio: turno.horario.horaInicio,
-        fin: turno.horario.horaFin,
-      }
-    : null,
-  mascota: turno.mascota
-    ? {
-        id: turno.mascota.id,
-        nombre: turno.mascota.nombre,
-        especie: turno.mascota.raza?.especie?.nombre || '',
-        usuario: turno.mascota.usuario
+        id: turno.id,
+        estado: turno.estado,
+        observaciones: turno.observaciones,
+        fechaHora,
+        rango: turno.horario
           ? {
-              id: turno.mascota.usuario.id,
-              nombre: turno.mascota.usuario.nombre,
-              apellido: turno.mascota.usuario.apellido,
-            }
+            inicio: turno.horario.horaInicio,
+            fin: turno.horario.horaFin,
+          }
           : null,
-      }
-    : null,
-  veterinario: turno.veterinario
-    ? {
-        id: turno.veterinario.id,
-        nombre: turno.veterinario.nombre,
-        apellido: turno.veterinario.apellido,
-        matricula: turno.veterinario.matricula,
-        direccion: turno.veterinario.direccion,
-      }
-    : null,
-  usuario: turno.usuario // <-- AGREGA ESTA LÍNEA
-    ? {
-        id: turno.usuario.id,
-        nombre: turno.usuario.nombre,
-        apellido: turno.usuario.apellido,
-      }
-    : null,
-  calificacion: turno.calificacion
-    ? {
-        id: turno.calificacion.id,
-        puntuacion: turno.calificacion.puntuacion,
-      }
-    : null,
-};
+        mascota: turno.mascota
+          ? {
+            id: turno.mascota.id,
+            nombre: turno.mascota.nombre,
+            especie: turno.mascota.raza?.especie?.nombre || '',
+            usuario: turno.mascota.usuario
+              ? {
+                id: turno.mascota.usuario.id,
+                nombre: turno.mascota.usuario.nombre,
+                apellido: turno.mascota.usuario.apellido,
+              }
+              : null,
+          }
+          : null,
+        veterinario: turno.veterinario
+          ? {
+            id: turno.veterinario.id,
+            nombre: turno.veterinario.nombre,
+            apellido: turno.veterinario.apellido,
+            matricula: turno.veterinario.matricula,
+            direccion: turno.veterinario.direccion,
+          }
+          : null,
+        usuario: turno.usuario // <-- AGREGA ESTA LÍNEA
+          ? {
+            id: turno.usuario.id,
+            nombre: turno.usuario.nombre,
+            apellido: turno.usuario.apellido,
+          }
+          : null,
+        calificacion: turno.calificacion
+          ? {
+            id: turno.calificacion.id,
+            puntuacion: turno.calificacion.puntuacion,
+          }
+          : null,
+      };
     });
 
     res.status(200).json({ message: 'found turnos', data: turnosResponse });
@@ -142,19 +142,20 @@ async function findOne(req: Request, res: Response) {
     const id = Number.parseInt(req.params.id);
 
     const turno = await em.findOneOrFail(
-  Turno,
-  { id },
-  {
-    populate: [
-      'mascota',
-      'mascota.usuario',
-      'mascota.raza',
-      'mascota.raza.especie',
-      'horario',
-      'veterinario', // <-- agrega esto
-    ],
-  }
-);
+      Turno,
+      { id },
+      {
+        populate: [
+          'mascota',
+          'mascota.usuario',
+          'mascota.raza',
+          'mascota.raza.especie',
+          'horario',
+          'veterinario',
+          'calificacion',
+        ],
+      }
+    );
 
     // En findAll y findOne, al armar la respuesta:
     const fecha = turno.fecha; // Date
@@ -182,38 +183,45 @@ async function findOne(req: Request, res: Response) {
     const h = turno.horario;
 
     const responseData = {
-  id: turno.id,
-  estado: turno.estado,
-  observaciones: turno.observaciones,
-  fechaHora,
-  rango: h
-    ? {
-        inicio: h.horaInicio,
-        fin: h.horaFin,
-      }
-    : null,
-  mascota: m
-    ? {
-        id: m.id,
-        nombre: m.nombre,
-        especie: m.raza?.especie?.nombre || '',
-        usuario: m.usuario
-          ? {
+      id: turno.id,
+      estado: turno.estado,
+      observaciones: turno.observaciones,
+      fechaHora,
+      rango: h
+        ? {
+          inicio: h.horaInicio,
+          fin: h.horaFin,
+        }
+        : null,
+      mascota: m
+        ? {
+          id: m.id,
+          nombre: m.nombre,
+          especie: m.raza?.especie?.nombre || '',
+          usuario: m.usuario
+            ? {
               id: m.usuario.id,
               nombre: m.usuario.nombre,
               apellido: m.usuario.apellido,
             }
-          : null,
-      }
-    : null,
-  veterinario: turno.veterinario
-    ? {
-        id: turno.veterinario.id,
-        nombre: turno.veterinario.nombre,
-        apellido: turno.veterinario.apellido,
-      }
-    : null,
-};
+            : null,
+        }
+        : null,
+      veterinario: turno.veterinario
+        ? {
+          id: turno.veterinario.id,
+          nombre: turno.veterinario.nombre,
+          apellido: turno.veterinario.apellido,
+        }
+        : null,
+      calificacion: turno.calificacion
+        ? {
+          id: turno.calificacion.id,
+          puntuacion: turno.calificacion.puntuacion,
+          comentario: turno.calificacion.comentario ?? null,
+        }
+        : null,
+    };
 
     res.status(200).json({ data: responseData });
   } catch (error: any) {
