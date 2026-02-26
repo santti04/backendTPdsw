@@ -10,8 +10,9 @@ import {
   update,
   remove,
   actualizarPromedio,
-  horariosDisponibles, // <-- importa la función
+  horariosDisponibles,
 } from './veterinario.controller.js';
+import { Veterinario } from './veterinario.entity.js';
 
 const em = ORM.em;
 
@@ -28,6 +29,21 @@ veterinarioRouter.get('/check-matricula/:matricula', async (req, res) => {
 });
 
 veterinarioRouter.get('/', findAll);
+
+// Verificar disponibilidad de matrícula — debe ir ANTES de /:id
+veterinarioRouter.get('/check-matricula/:matricula', async (req, res) => {
+  try {
+    const matricula = Number(req.params.matricula);
+    if (isNaN(matricula) || matricula <= 0) {
+      return res.status(400).json({ disponible: false, message: 'Matrícula inválida' });
+    }
+    const existente = await em.findOne(Veterinario, { matricula });
+    res.status(200).json({ disponible: !existente });
+  } catch (error: any) {
+    res.status(500).json({ disponible: false, message: error.message });
+  }
+});
+
 veterinarioRouter.get('/:id', findOne);
 veterinarioRouter.post('/', sanitizeVeterinarioInput, add);
 veterinarioRouter.put('/:id', sanitizeVeterinarioInput, update);
