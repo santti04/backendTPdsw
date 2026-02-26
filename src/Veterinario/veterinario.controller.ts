@@ -100,8 +100,12 @@ async function findOne(req: Request, res: Response) {
     // Armar respuesta para el frontend
     const responseData = {
       id: veterinario.id,
+      matricula: veterinario.matricula,
       nombre: veterinario.nombre,
       apellido: veterinario.apellido,
+      direccion: veterinario.direccion,
+      nroTelefono: veterinario.nroTelefono,
+      email: veterinario.email,
       especies: veterinario.especies.map(e => ({
         id: e.id,
         nombre: e.nombre,
@@ -136,7 +140,15 @@ async function add(req: Request, res: Response) {
       email: req.body.sanitizedInput.email,
     });
     if (existingVeterinario) {
-      return res.status(400).json({ message: 'Email ya en uso' });
+      return res.status(400).json({ message: 'El email ya está registrado' });
+    }
+
+    // Verifica si ya existe un veterinario con la misma matrícula
+    const existingMatricula = await em.findOne(Veterinario, {
+      matricula: req.body.sanitizedInput.matricula,
+    });
+    if (existingMatricula) {
+      return res.status(400).json({ message: 'La matrícula ingresada ya está registrada' });
     }
 
     // Encriptar la contraseña
