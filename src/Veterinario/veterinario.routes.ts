@@ -12,8 +12,6 @@ import {
   actualizarPromedio,
   horariosDisponibles,
 } from './veterinario.controller.js';
-import { Veterinario } from './veterinario.entity.js';
-
 const em = ORM.em;
 
 export const veterinarioRouter = Router();
