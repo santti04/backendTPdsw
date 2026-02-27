@@ -9,11 +9,11 @@ export const ORM = await MikroORM.init({
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],
 
-  dbName: isProd ? process.env.MYSQLDATABASE : 'veterinaria',
-  host: isProd ? process.env.MYSQLHOST : 'localhost',
-  port: isProd ? Number(process.env.MYSQLPORT) : 3306,
-  user: isProd ? process.env.MYSQLUSER : 'root',
-  password: isProd ? process.env.MYSQLPASSWORD : 'admin',
+  dbName: process.env.MYSQLDATABASE || 'veterinaria',
+  host: process.env.MYSQLHOST || 'localhost',
+  port: process.env.MYSQLPORT ? Number(process.env.MYSQLPORT) : 3306,
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || 'admin',
 
   highlighter: !isProd ? new SqlHighlighter() : undefined,
   debug: !isProd,
@@ -27,9 +27,7 @@ export const ORM = await MikroORM.init({
 
 
 export const syncSchema = async () => {
-  if (process.env.NODE_ENV !== 'production') {
-    const generator = ORM.getSchemaGenerator();
-    await generator.updateSchema();
-  }
+  const generator = ORM.getSchemaGenerator();
+  await generator.updateSchema();
 };
 
